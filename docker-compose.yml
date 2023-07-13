@@ -1,0 +1,42 @@
+version: '3.4'
+
+networks:
+  monitoring:
+    driver: bridge
+
+services:
+ 
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    container_name: prometheus
+    volumes:
+      - /Services/prometheus:/etc/prometheus
+      - /Service/prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=182d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+    ports:
+      - 9096:9090
+    networks:
+      - monitoring
+
+
+  librespeed_exporter:
+    image: brendonmatheson/prometheus-librespeed-exporter:1.0.0
+    container_name: librespeed_exporter
+    environment:
+      - "SERVER_IDS=80,90,91"
+    volumes:
+      - /Services/librespeedexporter/librespeed-backends.json:/librespeed-backends.json
+      - /Services/librespeedexporter/librespeed-exporter.sh:/usr/local/bin/librespeed-exporter.sh
+    ports:
+      - "9469:9469"
+    restart: unless-stopped
+    networks:
+      - monitoring
