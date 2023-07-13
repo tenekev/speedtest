@@ -7,6 +7,9 @@ global:
   external_labels:
       monitor: 'docker-host-alpha'
 
+rule_files:
+  - "alert.rules"
+
 # A scrape configuration containing exactly one endpoint to scrape.
 scrape_configs:
   - job_name: "librespeed"
